@@ -28,6 +28,13 @@ target_include_directories(
 
 target_compile_features(zuno_lib PUBLIC cxx_std_20)
 
+set(RATS_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(RATS_BUILD_CLIENT OFF CACHE BOOL "" FORCE)
+set(RATS_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+find_package(rats REQUIRED)
+
+target_link_libraries(zuno_lib PUBLIC rats)
+
 # ---- Declare executable ----
 
 add_executable(zuno_exe source/main.cpp)
