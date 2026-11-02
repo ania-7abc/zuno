@@ -39,9 +39,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: bash < .github/scripts/conan-ci-setup.sh
-
     - name: Configure
       run: cmake --preset=ci-sanitize
 
