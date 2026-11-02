@@ -39,6 +39,16 @@ target_compile_features(zuno_exe PRIVATE cxx_std_20)
 
 target_link_libraries(zuno_exe PRIVATE zuno_lib)
 
+include(FetchContent)
+FetchContent_Declare(
+        webui
+        GIT_REPOSITORY https://github.com/webui-dev/webui
+        GIT_TAG main
+)
+FetchContent_MakeAvailable(webui)
+
+target_link_libraries(zuno_exe PRIVATE webui)
+
 # ---- Install rules ----
 
 if(NOT CMAKE_SKIP_INSTALL_RULES)
