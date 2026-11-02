@@ -40,8 +40,11 @@ target_compile_features(zuno_exe PRIVATE cxx_std_20)
 target_link_libraries(zuno_exe PRIVATE zuno_lib)
 
 include(FetchContent)
+
+set(WEBUI_BUILD_EXAMPLES OFF CACHE BOOL "Disable WebUI examples" FORCE)
+
 FetchContent_Declare(
-        webui
+        webui SYSTEM
         GIT_REPOSITORY https://github.com/webui-dev/webui
         GIT_TAG main
 )
