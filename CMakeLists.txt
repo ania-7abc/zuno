@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 3.14)
 include(cmake/prelude.cmake)
 
 project(
-    zuno
-    VERSION 0.0.0
-    DESCRIPTION "A serverless chat app where messages travel directly between peers"
-    HOMEPAGE_URL "https://github.com/ania-7abc/zuno"
-    LANGUAGES CXX
+        zuno
+        VERSION 0.0.0
+        DESCRIPTION "A serverless chat app where messages travel directly between peers"
+        HOMEPAGE_URL "https://github.com/ania-7abc/zuno"
+        LANGUAGES CXX
 )
 
 include(cmake/project-is-top-level.cmake)
@@ -49,19 +49,19 @@ target_include_directories(zuno_exe SYSTEM PRIVATE ${OUTPUT_WEB_DIR})
 
 # ---- Install rules ----
 
-if(NOT CMAKE_SKIP_INSTALL_RULES)
+if (NOT CMAKE_SKIP_INSTALL_RULES)
   include(cmake/install-rules.cmake)
-endif()
+endif ()
 
 # ---- Developer mode ----
 
-if(NOT zuno_DEVELOPER_MODE)
+if (NOT zuno_DEVELOPER_MODE)
   return()
-elseif(NOT PROJECT_IS_TOP_LEVEL)
+elseif (NOT PROJECT_IS_TOP_LEVEL)
   message(
-      AUTHOR_WARNING
-      "Developer mode is intended for developers of zuno"
+          AUTHOR_WARNING
+          "Developer mode is intended for developers of zuno"
   )
-endif()
+endif ()
 
 include(cmake/dev-mode.cmake)
