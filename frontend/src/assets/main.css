@@ -1,0 +1,21 @@
+:root {
+    --bg: #eee;
+    --primary: #ddd;
+    --text: #111;
+    --muted: #888;
+}
+
+:root[data-theme="dark"] {
+    --bg: #111;
+    --primary: #222;
+    --text: #eee;
+    --muted: #777;
+}
+
+body {
+    font-family: sans-serif;
+    min-width: 200px;
+    margin: 10px;
+    background: var(--bg);
+    color: var(--text);
+}

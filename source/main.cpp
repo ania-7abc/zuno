@@ -5,7 +5,9 @@
 
 #include <webui.hpp>
 
+#ifdef zuno_USE_VFS
 #include "vfs.h"
+#endif
 
 namespace {
 
@@ -28,8 +30,15 @@ auto main() -> int {
   webui::set_logger(&webui_logger);
 
   const auto window = webui::window();
+
+#ifdef zuno_USE_VFS
   window.set_file_handler(vfs);
-  if (!window.show()) {
+  const bool shown = window.show();
+#else
+  const bool shown = window.show("frontend/");
+#endif
+
+  if (!shown) {
     librats::Logger::getInstance().log(librats::LogLevel::ERROR, "webui",
                                        "Failed to show window");
     return 1;

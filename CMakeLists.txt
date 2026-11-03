@@ -43,9 +43,13 @@ FetchContent_MakeAvailable(webui)
 target_link_libraries(zuno_exe PRIVATE webui)
 
 include(cmake/generate_vfs.cmake)
-add_dependencies(zuno_exe generate_vfs)
-
-target_include_directories(zuno_exe SYSTEM PRIVATE ${OUTPUT_WEB_DIR})
+if (zuno_DEVELOPER_MODE)
+  add_dependencies(zuno_exe frontend)
+else ()
+  add_dependencies(zuno_exe frontend-vfs)
+  target_compile_definitions(zuno_exe PRIVATE zuno_USE_VFS)
+  target_include_directories(zuno_exe SYSTEM PRIVATE ${OUTPUT_WEB_DIR})
+endif ()
 
 # ---- Install rules ----
 
