@@ -13,28 +13,6 @@ project(
 include(cmake/project-is-top-level.cmake)
 include(cmake/variables.cmake)
 
-# ---- Declare library ----
-
-add_library(
-    zuno_lib OBJECT
-    source/lib.cpp
-)
-
-target_include_directories(
-    zuno_lib ${warning_guard}
-    PUBLIC
-    "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/includes>"
-)
-
-target_compile_features(zuno_lib PUBLIC cxx_std_20)
-
-set(RATS_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(RATS_BUILD_CLIENT OFF CACHE BOOL "" FORCE)
-set(RATS_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-find_package(rats REQUIRED)
-
-target_link_libraries(zuno_lib PUBLIC rats)
-
 # ---- Declare executable ----
 
 add_executable(zuno_exe source/main.cpp)
@@ -44,11 +22,16 @@ set_property(TARGET zuno_exe PROPERTY OUTPUT_NAME zuno)
 
 target_compile_features(zuno_exe PRIVATE cxx_std_20)
 
-target_link_libraries(zuno_exe PRIVATE zuno_lib)
-
 include(FetchContent)
 
 set(WEBUI_BUILD_EXAMPLES OFF CACHE BOOL "Disable WebUI examples" FORCE)
+
+set(RATS_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(RATS_BUILD_CLIENT OFF CACHE BOOL "" FORCE)
+set(RATS_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+find_package(rats REQUIRED)
+
+target_link_libraries(zuno_exe PUBLIC rats)
 
 FetchContent_Declare(
         webui SYSTEM
@@ -58,6 +41,11 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(webui)
 
 target_link_libraries(zuno_exe PRIVATE webui)
+
+include(cmake/generate_vfs.cmake)
+add_dependencies(zuno_exe generate_vfs)
+
+target_include_directories(zuno_exe SYSTEM PRIVATE ${OUTPUT_WEB_DIR})
 
 # ---- Install rules ----
 
