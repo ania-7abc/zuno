@@ -46,6 +46,8 @@ add_custom_command(
         DEPENDS
         "${NPM_STAMP}"
         "${FRONTEND_SRC}/src/assets/main.css"
+        "${FRONTEND_SRC}/src/components/Chat.vue"
+        "${FRONTEND_SRC}/src/components/Sidebar.vue"
         "${FRONTEND_SRC}/src/components/ThemeSwitcher.vue"
         "${FRONTEND_SRC}/src/App.vue"
         "${FRONTEND_SRC}/src/main.js"

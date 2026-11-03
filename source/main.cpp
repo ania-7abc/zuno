@@ -31,6 +31,9 @@ auto main() -> int {
 
   const auto window = webui::window();
 
+  window.set_minimum_size(500, 300);
+  window.set_size(800, 600);
+
 #ifdef zuno_USE_VFS
   window.set_file_handler(vfs);
   const bool shown = window.show();
