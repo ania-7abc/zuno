@@ -1,34 +1,48 @@
 <script setup>
+import {computed} from 'vue'
+
 import Chat from './components/Chat.vue'
 import Sidebar from './components/Sidebar.vue'
 import ThemeSwitcher from './components/ThemeSwitcher.vue'
 
 import {useWebui} from "./useWebui.js"
+import {useMessenger} from './useMessenger.js'
 
 const {isAvailable, isConnected} = useWebui()
+const {mobileView} = useMessenger()
+
+const connectionState = computed(() => {
+  if (import.meta.env.DEV)
+    return 'ready'
+  if (!isAvailable.value)
+    return 'unavailable'
+  if (!isConnected.value)
+    return 'connecting'
+  return 'ready'
+})
 </script>
 
 <template>
   <nav class="navbar">
-    <div class="nav-left">
-      <a class="brand" href="/">Zuno</a>
-    </div>
+    <a class="brand" href="/">
+      <span class="brand-mark">Z</span>
+      <span class="brand-name">Zuno</span>
+    </a>
     <div class="nav-right">
       <ThemeSwitcher/>
     </div>
   </nav>
-  <hr>
-  <div v-if="!isAvailable" class="status-screen">
+  <div v-if="connectionState === 'unavailable'" class="status-screen">
     <div class="error">
       <div class="error-icon">⚠</div>
       <h2>WebUI is unavailable</h2>
     </div>
   </div>
-  <div v-else-if="!isConnected" class="status-screen">
+  <div v-else-if="connectionState === 'connecting'" class="status-screen">
     <div class="spinner"></div>
     <p class="loading-text">Connecting...</p>
   </div>
-  <div v-else class="layout">
+  <div v-else :data-mobile-view="mobileView" class="layout">
     <aside class="sidebar">
       <Sidebar/>
     </aside>
@@ -46,55 +60,76 @@ const {isAvailable, isConnected} = useWebui()
   flex-direction: column;
 }
 
-.navbar,
-hr {
-  flex-shrink: 0;
-}
-
 .navbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin: 5px;
+  justify-content: space-between;
+  gap: 14px;
+  height: var(--nav-h);
+  flex: 0 0 auto;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  z-index: 10;
 }
 
 .brand {
-  font-weight: 700;
-  font-size: 18pt;
-  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
   color: var(--text);
+  text-decoration: none;
+  user-select: none;
 }
 
-.nav-left,
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  background: var(--text);
+  color: var(--panel);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.brand-name {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .nav-right {
   display: flex;
-  gap: 20px;
   align-items: center;
-}
-
-hr {
-  color: var(--text);
-  margin: 0 0 10px;
+  gap: 10px;
+  flex: 0 0 auto;
 }
 
 .layout {
   display: flex;
-  justify-content: space-between;
   flex: 1;
   min-height: 0;
 }
 
 .sidebar {
-  flex: 0 0 200px;
-  overflow-y: auto;
+  flex: 0 0 300px;
+  overflow: hidden;
   min-height: 0;
+  background: var(--panel);
 }
 
 .divider {
   width: 1px;
   align-self: stretch;
-  background: var(--text);
-  margin: 0 15px;
+  background: var(--border);
   flex: 0 0 1px;
 }
 
@@ -104,7 +139,8 @@ hr {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
+  background: var(--panel);
 }
 
 .status-screen {
@@ -116,6 +152,25 @@ hr {
   gap: 16px;
   min-height: 0;
   color: var(--text);
+}
+
+@media (max-width: 640px) {
+  .sidebar {
+    flex: 1 1 auto;
+  }
+
+  .chat {
+    flex: 1 1 auto;
+  }
+
+  .layout[data-mobile-view="chat"] .sidebar,
+  .layout[data-mobile-view="chat"] .divider {
+    display: none;
+  }
+
+  .layout[data-mobile-view="list"] .chat {
+    display: none;
+  }
 }
 
 .spinner {
