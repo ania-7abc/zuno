@@ -31,7 +31,7 @@ set(RATS_BUILD_CLIENT OFF CACHE BOOL "" FORCE)
 set(RATS_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 find_package(rats REQUIRED)
 
-target_link_libraries(zuno_exe PUBLIC rats)
+target_link_libraries(zuno_exe PUBLIC rats::rats)
 
 FetchContent_Declare(
         webui SYSTEM
