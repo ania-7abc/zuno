@@ -10,6 +10,23 @@ set(VFS_SCRIPT_PATH "${OUTPUT_WEB_DIR}/vfs.py")
 set(VFS_HEADER "${OUTPUT_WEB_DIR}/vfs.h")
 set(NPM_STAMP "${CMAKE_CURRENT_BINARY_DIR}/npm_install.stamp")
 
+# ---- Frontend inputs ----
+file(GLOB_RECURSE FRONTEND_SOURCE_FILES CONFIGURE_DEPENDS
+        "${FRONTEND_SRC}/src/*.js"
+        "${FRONTEND_SRC}/src/*.ts"
+        "${FRONTEND_SRC}/src/*.vue"
+        "${FRONTEND_SRC}/src/*.css"
+        "${FRONTEND_SRC}/public/*"
+)
+
+set(FRONTEND_CONFIG_FILES
+        "${FRONTEND_SRC}/index.html"
+        "${FRONTEND_SRC}/package.json"
+        "${FRONTEND_SRC}/package-lock.json"
+        "${FRONTEND_SRC}/tsconfig.json"
+        "${FRONTEND_SRC}/vite.config.ts"
+)
+
 file(MAKE_DIRECTORY "${OUTPUT_WEB_DIR}")
 file(MAKE_DIRECTORY "${FRONTEND_BIN}")
 
@@ -33,7 +50,9 @@ add_custom_command(
         COMMAND "${NPM}" install --no-audit --no-fund
         COMMAND "${CMAKE_COMMAND}" -E touch "${NPM_STAMP}"
         WORKING_DIRECTORY "${FRONTEND_SRC}"
-        DEPENDS "${FRONTEND_SRC}/package.json"
+        DEPENDS
+        "${FRONTEND_SRC}/package.json"
+        "${FRONTEND_SRC}/package-lock.json"
         COMMENT "Installing npm dependencies"
         VERBATIM
 )
@@ -45,12 +64,8 @@ add_custom_command(
         WORKING_DIRECTORY "${FRONTEND_SRC}"
         DEPENDS
         "${NPM_STAMP}"
-        "${FRONTEND_SRC}/src/assets/main.css"
-        "${FRONTEND_SRC}/src/components/Chat.vue"
-        "${FRONTEND_SRC}/src/components/Sidebar.vue"
-        "${FRONTEND_SRC}/src/components/ThemeSwitcher.vue"
-        "${FRONTEND_SRC}/src/App.vue"
-        "${FRONTEND_SRC}/src/main.js"
+        ${FRONTEND_SOURCE_FILES}
+        ${FRONTEND_CONFIG_FILES}
         COMMENT "Building Vue frontend into ${FRONTEND_BIN}"
         VERBATIM
 )
