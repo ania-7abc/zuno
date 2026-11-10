@@ -54,7 +54,9 @@ jobs:
         cmake --install librats/build --config Release --prefix librats-install
 
     - name: Configure
-      run: cmake --preset=ci-sanitize
+      # librats' generated package files reference an uninitialized variable;
+      # keep that developer warning visible without failing the configure step.
+      run: cmake --preset=ci-sanitize -Wno-error=dev
 
     - name: Build
       run: cmake --build build/sanitize -j 2
@@ -116,7 +118,9 @@ jobs:
 
     - name: Configure
       shell: pwsh
-      run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])"
+      # librats' generated package files reference an uninitialized variable;
+      # keep that developer warning visible without failing the configure step.
+      run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])" -Wno-error=dev
 
     - name: Build
       run: cmake --build build --config Release -j 2
