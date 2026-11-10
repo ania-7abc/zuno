@@ -6,12 +6,12 @@ import Sidebar from './components/Sidebar.vue'
 import ThemeSwitcher from './components/ThemeSwitcher.vue'
 
 import {useWebui} from './useWebui.js'
-import {useMessenger} from './useMessenger'
+import {useMessengerState} from './useMessengerState'
 
 type ConnectionState = 'ready' | 'unavailable' | 'connecting'
 
 const {isAvailable, isConnected} = useWebui()
-const {mobileView} = useMessenger()
+const {mobileView} = useMessengerState()
 
 const connectionState = computed<ConnectionState>(() => {
   if (import.meta.env.DEV)

@@ -3,7 +3,8 @@ import {computed, ref} from 'vue'
 
 import Icon from './Icon.vue'
 import {formatChatTime} from '@/utils/format'
-import {useMessenger, type Chat} from '@/useMessenger'
+import type {Chat} from '@/types/messenger'
+import {useMessengerState} from '@/useMessengerState'
 
 const {
   currentUser,
@@ -23,7 +24,8 @@ const {
   markAllRead,
   toggleNewChat,
   startChat,
-} = useMessenger()
+  updateProfile,
+} = useMessengerState()
 
 const profileOpen = ref(false)
 const nameDraft = ref('')
@@ -61,8 +63,10 @@ function saveProfile(): void {
   if (!canSaveProfile.value)
     return
 
-  currentUser.name = nameDraft.value.trim()
-  currentUser.handle = `@${handleDraft.value.trim().replace(/^@+/, '')}`
+  updateProfile({
+    name: nameDraft.value.trim(),
+    handle: `@${handleDraft.value.trim().replace(/^@+/, '')}`,
+  })
   profileOpen.value = false
 }
 </script>

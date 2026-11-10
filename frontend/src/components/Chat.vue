@@ -3,7 +3,8 @@ import {computed, nextTick, ref, watch} from 'vue'
 
 import Icon from './Icon.vue'
 import {formatDateLabel, formatTime} from '@/utils/format'
-import {useMessenger, type Message} from '@/useMessenger'
+import type {Message} from '@/types/messenger'
+import {useMessengerState} from '@/useMessengerState'
 
 const {
   activeChat,
@@ -16,7 +17,7 @@ const {
   isMine,
   sendMessage,
   backToList,
-} = useMessenger()
+} = useMessengerState()
 
 const draft = ref('')
 const scroller = ref<HTMLElement | null>(null)
