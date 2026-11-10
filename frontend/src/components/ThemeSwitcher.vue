@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import {ref, watch} from 'vue'
 
 import Icon from './Icon.vue'
@@ -7,15 +7,15 @@ const STORAGE_KEY = 'zuno.theme'
 
 const media = window.matchMedia('(prefers-color-scheme: dark)')
 const stored = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
-const darkTheme = ref(stored ? stored === 'dark' : media.matches)
+const darkTheme = ref<boolean>(stored ? stored === 'dark' : media.matches)
 
-function apply() {
+function apply(): void {
   document.documentElement.dataset.theme = darkTheme.value ? 'dark' : 'light'
 }
 
 apply()
 
-watch(darkTheme, value => {
+watch(darkTheme, (value) => {
   apply()
   try {
     localStorage.setItem(STORAGE_KEY, value ? 'dark' : 'light')
@@ -24,7 +24,7 @@ watch(darkTheme, value => {
   }
 })
 
-media.addEventListener('change', event => {
+media.addEventListener('change', (event) => {
   if (typeof localStorage !== 'undefined' && localStorage.getItem(STORAGE_KEY)) return
   darkTheme.value = event.matches
 })

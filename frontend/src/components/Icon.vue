@@ -1,11 +1,15 @@
-<script setup>
-const props = defineProps({
-  name: {type: String, default: 'help'},
-  size: {type: [Number, String], default: 20},
-  strokeWidth: {type: [Number, String], default: 1.8},
+<script setup lang="ts">
+const props = withDefaults(defineProps<{
+  name?: string
+  size?: number | string
+  strokeWidth?: number | string
+}>(), {
+  name: 'help',
+  size: 20,
+  strokeWidth: 1.8,
 })
 
-const icons = {
+const icons: Record<string, string> = {
   search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   send: '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
@@ -23,7 +27,7 @@ const icons = {
   help: '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
 }
 
-const markup = () => icons[props.name] || icons.help
+const markup = (): string => icons[props.name] || icons.help
 </script>
 
 <template>

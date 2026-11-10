@@ -4,29 +4,29 @@ const MONTHS = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
 ]
 
-function sameDay(a, b) {
+function sameDay(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear()
     && a.getMonth() === b.getMonth()
     && a.getDate() === b.getDate()
 }
 
-function startOfDay(date) {
+function startOfDay(date: Date): Date {
   const copy = new Date(date)
   copy.setHours(0, 0, 0, 0)
   return copy
 }
 
-function daysAgo(date, now) {
-  return Math.round((startOfDay(now) - startOfDay(date)) / 86_400_000)
+function daysAgo(date: Date, now: Date): number {
+  return Math.round((startOfDay(now).getTime() - startOfDay(date).getTime()) / 86_400_000)
 }
 
-export function formatTime(timestamp) {
+export function formatTime(timestamp?: number | null): string {
   if (!timestamp) return ''
   const date = new Date(timestamp)
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
-export function formatChatTime(timestamp) {
+export function formatChatTime(timestamp?: number | null): string {
   if (!timestamp) return ''
   const date = new Date(timestamp)
   const now = new Date()
@@ -42,7 +42,7 @@ export function formatChatTime(timestamp) {
     : `${month} ${day}, ${date.getFullYear()}`
 }
 
-export function formatDateLabel(timestamp) {
+export function formatDateLabel(timestamp: number): string {
   const date = new Date(timestamp)
   const now = new Date()
 
@@ -57,7 +57,7 @@ export function formatDateLabel(timestamp) {
     : `${month} ${day}, ${date.getFullYear()}`
 }
 
-export function formatLastSeen(timestamp) {
+export function formatLastSeen(timestamp?: number | null): string {
   if (!timestamp) return 'Offline'
 
   const date = new Date(timestamp)
@@ -78,7 +78,7 @@ export function formatLastSeen(timestamp) {
   return `Last seen ${MONTHS[date.getMonth()]} ${date.getDate()}`
 }
 
-export function truncate(text, length = 80) {
+export function truncate(text?: string | null, length = 80): string {
   if (!text) return ''
   return text.length > length ? `${text.slice(0, length - 1)}…` : text
 }

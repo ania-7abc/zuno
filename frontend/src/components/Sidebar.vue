@@ -1,9 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import {computed, ref} from 'vue'
 
 import Icon from './Icon.vue'
 import {formatChatTime} from '@/utils/format'
-import {useMessenger} from '@/useMessenger.js'
+import {useMessenger, type Chat} from '@/useMessenger'
 
 const {
   currentUser,
@@ -29,17 +29,17 @@ const profileOpen = ref(false)
 const nameDraft = ref('')
 const handleDraft = ref('')
 
-const canSaveProfile = computed(() => (
+const canSaveProfile = computed<boolean>(() => (
   nameDraft.value.trim().length > 0
   && handleDraft.value.trim().replace(/^@+/, '').length > 0
 ))
 
-function chatTime(chat) {
+function chatTime(chat: Chat): string {
   const last = lastMessageOf(chat.id)
   return formatChatTime(last?.createdAt ?? chat.lastMessageAt)
 }
 
-function toggleProfile() {
+function toggleProfile(): void {
   profileOpen.value = !profileOpen.value
   if (profileOpen.value) {
     nameDraft.value = currentUser.name
@@ -48,16 +48,16 @@ function toggleProfile() {
   }
 }
 
-function closeProfile() {
+function closeProfile(): void {
   profileOpen.value = false
 }
 
-function openNewChat() {
+function openNewChat(): void {
   profileOpen.value = false
   toggleNewChat()
 }
 
-function saveProfile() {
+function saveProfile(): void {
   if (!canSaveProfile.value)
     return
 
@@ -185,7 +185,7 @@ function saveProfile() {
 
         <div class="id-field">
           <span>Your ID</span>
-          <code>{{ currentUser.peerId }}</code>
+          <code>{{ currentUser.id }}</code>
         </div>
 
         <button class="save-profile" :disabled="!canSaveProfile" type="button" @click="saveProfile">

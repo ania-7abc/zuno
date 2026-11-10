@@ -1,17 +1,19 @@
-<script setup>
+<script setup lang="ts">
 import {computed} from 'vue'
 
 import Chat from './components/Chat.vue'
 import Sidebar from './components/Sidebar.vue'
 import ThemeSwitcher from './components/ThemeSwitcher.vue'
 
-import {useWebui} from "./useWebui.js"
-import {useMessenger} from './useMessenger.js'
+import {useWebui} from './useWebui.js'
+import {useMessenger} from './useMessenger'
+
+type ConnectionState = 'ready' | 'unavailable' | 'connecting'
 
 const {isAvailable, isConnected} = useWebui()
 const {mobileView} = useMessenger()
 
-const connectionState = computed(() => {
+const connectionState = computed<ConnectionState>(() => {
   if (import.meta.env.DEV)
     return 'ready'
   if (!isAvailable.value)

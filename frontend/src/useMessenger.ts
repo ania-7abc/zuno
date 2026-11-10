@@ -7,9 +7,55 @@ const HOUR = 60 * MINUTE
 const DAY = 24 * HOUR
 const NOW = Date.now()
 
-const ago = (offset) => NOW - offset
+const ago = (offset: number): number => NOW - offset
 
-export const people = reactive({
+export interface Person {
+  id: string
+  name: string
+  handle: string
+  peerId?: string
+  online: boolean
+  lastSeen?: number
+}
+
+export interface MessageReply {
+  senderId: string
+  text: string
+}
+
+export type MessageStatus = 'sent' | 'read'
+
+export interface Message {
+  id: string
+  senderId: string
+  text: string
+  createdAt: number
+  status: MessageStatus
+  replyTo?: MessageReply
+}
+
+export interface Chat {
+  id: string
+  title: string
+  contactId: string
+  pinned: boolean
+  muted: boolean
+  unread: number
+  lastMessageAt: number
+  typingUserId?: string
+}
+
+export type FilterId = 'all' | 'unread' | 'pinned'
+
+export interface FilterItem {
+  id: FilterId
+  label: string
+  count?: number
+}
+
+export type MobileView = 'list' | 'chat'
+
+export const people = reactive<Record<string, Person>>({
   you: {
     id: 'you',
     name: 'Alex Morgan',
@@ -68,7 +114,12 @@ export const currentUser = people.you
 
 let messageSequence = 0
 
-function message(senderId, createdAt, text, extra = {}) {
+function message(
+    senderId: string,
+    createdAt: number,
+    text: string,
+    extra: Partial<Message> = {},
+): Message {
   return {
     id: `demo-message-${++messageSequence}`,
     senderId,
@@ -79,7 +130,7 @@ function message(senderId, createdAt, text, extra = {}) {
   }
 }
 
-const chats = ref([
+const chats = ref<Chat[]>([
   {
     id: 'maya',
     title: 'Maya Collins',
@@ -128,7 +179,7 @@ const chats = ref([
   },
 ])
 
-const messages = ref({
+const messages = ref<Record<string, Message[]>>({
   maya: [
     message('you', ago(2 * HOUR), 'Hey Maya, do you have a minute to look at the chat header?'),
     message('maya', ago(1.92 * HOUR),
@@ -168,59 +219,63 @@ const messages = ref({
   ],
 })
 
-const activeChatId = ref(null)
-const filter = ref('all')
+const activeChatId = ref<string | null>(null)
+const filter = ref<FilterId>('all')
 const search = ref('')
 const newChatOpen = ref(false)
-const mobileView = ref('list')
+const mobileView = ref<MobileView>('list')
 
-const activeChat = computed(
+const activeChat = computed<Chat | null>(
     () => chats.value.find((chat) => chat.id === activeChatId.value) ?? null,
 )
 
-const activeMessages = computed(() => messages.value[activeChatId.value] ?? [])
+const activeMessages = computed<Message[]>(() => {
+  const chatId = activeChatId.value
+  return chatId ? messages.value[chatId] ?? [] : []
+})
 
-const activeContact = computed(
-    () => people[activeChat.value?.contactId] ?? null,
-)
+const activeContact = computed<Person | null>(() => {
+  const contactId = activeChat.value?.contactId
+  return contactId ? people[contactId] ?? null : null
+})
 
-const activeTypingUser = computed(() => {
+const activeTypingUser = computed<Person | null>(() => {
   const id = activeChat.value?.typingUserId
   return id ? people[id] ?? null : null
 })
 
-const totalUnread = computed(
+const totalUnread = computed<number>(
     () => chats.value.reduce((total, chat) => total + (chat.unread || 0), 0),
 )
 
-const directContactIds = computed(
+const directContactIds = computed<Set<string>>(
     () => new Set(chats.value.map((chat) => chat.contactId)),
 )
 
-const availablePeople = computed(
+const availablePeople = computed<Person[]>(
     () => Object.values(people).filter(
         (person) => person.id !== currentUser.id && !directContactIds.value.has(person.id),
     ),
 )
 
-export function lastMessageOf(chatId) {
+export function lastMessageOf(chatId: string): Message | null {
   const list = messages.value[chatId]
   return list?.length ? list[list.length - 1] : null
 }
 
-export function senderNameFor(userId) {
+export function senderNameFor(userId: string): string {
   return people[userId]?.name ?? 'Unknown'
 }
 
-export function firstNameFor(userId) {
+export function firstNameFor(userId: string): string {
   return senderNameFor(userId).split(' ')[0]
 }
 
-export function isMine(messageItem) {
+export function isMine(messageItem: Message): boolean {
   return messageItem.senderId === currentUser.id
 }
 
-function previewFor(chat) {
+function previewFor(chat: Chat): string {
   if (chat.typingUserId)
     return `${firstNameFor(chat.typingUserId)} is typing…`
 
@@ -233,7 +288,7 @@ function previewFor(chat) {
   return truncate(prefix + last.text, 54)
 }
 
-const sortedChats = computed(() => {
+const sortedChats = computed<Chat[]>(() => {
   const query = search.value.trim().toLowerCase()
 
   return chats.value
@@ -252,13 +307,13 @@ const sortedChats = computed(() => {
           || second.lastMessageAt - first.lastMessageAt)
 })
 
-const filters = computed(() => [
+const filters = computed<FilterItem[]>(() => [
   {id: 'all', label: 'All'},
   {id: 'unread', label: 'Unread', count: totalUnread.value},
   {id: 'pinned', label: 'Pinned'},
 ])
 
-const presenceLabel = computed(() => {
+const presenceLabel = computed<string>(() => {
   const contact = activeContact.value
   if (!contact)
     return ''
@@ -267,7 +322,7 @@ const presenceLabel = computed(() => {
   return formatLastSeen(contact.lastSeen)
 })
 
-const introText = computed(() => {
+const introText = computed<string>(() => {
   if (!activeChat.value)
     return ''
   return activeContact.value
@@ -275,15 +330,15 @@ const introText = computed(() => {
     : ''
 })
 
-function isTyping(chat) {
+function isTyping(chat: Chat): boolean {
   return Boolean(chat.typingUserId)
 }
 
-function setFilter(value) {
+function setFilter(value: FilterId): void {
   filter.value = value
 }
 
-function selectChat(chatId) {
+function selectChat(chatId: string): void {
   activeChatId.value = chatId
   const chat = chats.value.find((item) => item.id === chatId)
   if (chat)
@@ -292,27 +347,27 @@ function selectChat(chatId) {
   mobileView.value = 'chat'
 }
 
-function backToList() {
+function backToList(): void {
   mobileView.value = 'list'
 }
 
-function markAllRead() {
+function markAllRead(): void {
   for (const chat of chats.value)
     chat.unread = 0
 }
 
-function toggleNewChat() {
+function toggleNewChat(): void {
   newChatOpen.value = !newChatOpen.value
 }
 
-function startChat(person) {
+function startChat(person: Person): void {
   const existing = chats.value.find((chat) => chat.contactId === person.id)
   if (existing) {
     selectChat(existing.id)
     return
   }
 
-  const chat = {
+  const chat: Chat = {
     id: `dm-${person.id}`,
     title: person.name,
     contactId: person.id,
@@ -326,14 +381,14 @@ function startChat(person) {
   selectChat(chat.id)
 }
 
-function sendMessage(text) {
+function sendMessage(text: string): boolean {
   const chat = activeChat.value
   const trimmed = text.trim()
   if (!chat || !trimmed)
     return false
 
   const timestamp = Date.now()
-  const item = {
+  const item: Message = {
     id: `local-${timestamp}-${Math.random().toString(16).slice(2)}`,
     senderId: currentUser.id,
     text: trimmed,
@@ -346,7 +401,7 @@ function sendMessage(text) {
   messages.value[chat.id].push(item)
   chat.lastMessageAt = timestamp
   chat.unread = 0
-  chat.typingUserId = null
+  chat.typingUserId = undefined
 
   window.setTimeout(() => {
     const stored = messages.value[chat.id]?.find((messageItem) => messageItem.id === item.id)

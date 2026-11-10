@@ -1,9 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import {computed, nextTick, ref, watch} from 'vue'
 
 import Icon from './Icon.vue'
 import {formatDateLabel, formatTime} from '@/utils/format'
-import {useMessenger} from '@/useMessenger.js'
+import {useMessenger, type Message} from '@/useMessenger'
 
 const {
   activeChat,
@@ -19,20 +19,30 @@ const {
 } = useMessenger()
 
 const draft = ref('')
-const scroller = ref(null)
-const composer = ref(null)
+const scroller = ref<HTMLElement | null>(null)
+const composer = ref<HTMLTextAreaElement | null>(null)
 const atBottom = ref(true)
 
-const statusText = computed(() => {
+interface MessageGroupItem {
+  message: Message
+  compact: boolean
+}
+
+interface MessageGroup {
+  label: string
+  items: MessageGroupItem[]
+}
+
+const statusText = computed<string>(() => {
   if (activeTypingUser.value)
     return `${activeTypingUser.value.name.split(' ')[0]} is typing…`
   return presenceLabel.value
 })
 
-const messageGroups = computed(() => {
+const messageGroups = computed<MessageGroup[]>(() => {
   const list = activeMessages.value
-  const groups = []
-  let currentLabel = null
+  const groups: MessageGroup[] = []
+  let currentLabel: string | null = null
 
   for (let index = 0; index < list.length; index += 1) {
     const item = list[index]
@@ -59,7 +69,7 @@ const messageGroups = computed(() => {
   return groups
 })
 
-function scrollToBottom(smooth = false) {
+function scrollToBottom(smooth = false): void {
   nextTick(() => {
     if (!scroller.value)
       return
@@ -70,14 +80,14 @@ function scrollToBottom(smooth = false) {
   })
 }
 
-function onScroll() {
+function onScroll(): void {
   const element = scroller.value
   if (!element)
     return
   atBottom.value = element.scrollHeight - element.scrollTop - element.clientHeight < 80
 }
 
-function resize() {
+function resize(): void {
   const element = composer.value
   if (!element)
     return
@@ -85,7 +95,7 @@ function resize() {
   element.style.height = `${Math.min(element.scrollHeight, 160)}px`
 }
 
-function submit() {
+function submit(): void {
   if (!draft.value.trim())
     return
   if (sendMessage(draft.value)) {
