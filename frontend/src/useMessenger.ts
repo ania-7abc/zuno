@@ -73,8 +73,6 @@ export function useMessenger(): MessengerApi {
         id: `dm-${person.id}`,
         title: person.name,
         contactId: person.id,
-        pinned: false,
-        muted: false,
         unread: 0,
         lastMessageAt: 0,
       }

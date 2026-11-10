@@ -85,7 +85,6 @@ const sortedChats = computed<Chat[]>(
 const filters = computed<FilterItem[]>(() => [
   {id: 'all', label: 'All'},
   {id: 'unread', label: 'Unread', count: totalUnread.value},
-  {id: 'pinned', label: 'Pinned'},
 ])
 
 const presenceLabel = computed<string>(() => {

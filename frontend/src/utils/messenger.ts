@@ -54,14 +54,11 @@ export function filterAndSortChats(
       .filter((chat) => {
         if (filter === 'unread' && !chat.unread)
           return false
-        if (filter === 'pinned' && !chat.pinned)
-          return false
         if (!query)
           return true
         return chat.title.toLowerCase().includes(query)
             || previewFor(chat, people, messages, currentUserId).toLowerCase().includes(query)
       })
       .slice()
-      .sort((first, second) => Number(second.pinned) - Number(first.pinned)
-          || second.lastMessageAt - first.lastMessageAt)
+      .sort((first, second) => second.lastMessageAt - first.lastMessageAt)
 }

@@ -137,7 +137,6 @@ watch(() => activeMessages.value.length, () => {
         <div class="chat-heading">
           <h1>
             {{ activeChat.title }}
-            <Icon v-if="activeChat.pinned" class="peer-pin" name="pin" :size="13"/>
           </h1>
           <p :class="['chat-status', {'is-typing': activeTypingUser}]">
             <span v-if="!activeTypingUser" :class="['status-dot', {online: activeContact?.online}]"></span>
@@ -260,10 +259,6 @@ watch(() => activeMessages.value.length, () => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.peer-pin {
-  color: var(--muted);
 }
 
 .chat-status {

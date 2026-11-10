@@ -129,7 +129,6 @@ function saveProfile(): void {
         <span class="chat-body">
           <span class="chat-top">
             <span class="chat-title">
-              <Icon v-if="chat.pinned" class="pin" name="pin" :size="13"/>
               {{ chat.title }}
             </span>
             <span class="chat-time">{{ chatTime(chat) }}</span>
@@ -140,7 +139,6 @@ function saveProfile(): void {
               {{ previewFor(chat) }}
             </span>
             <span class="chat-flags">
-              <Icon v-if="chat.muted" class="muted-icon" name="bell-off" :size="13"/>
               <span v-if="chat.unread" class="unread">{{ chat.unread > 99 ? '99+' : chat.unread }}</span>
             </span>
           </span>
@@ -152,7 +150,6 @@ function saveProfile(): void {
       <Icon :name="filter === 'unread' ? 'check-double' : 'message'" :size="28"/>
       <p v-if="search">No conversations match “{{ search }}”.</p>
       <p v-else-if="filter === 'unread'">You are all caught up.</p>
-      <p v-else-if="filter === 'pinned'">No pinned conversations yet.</p>
       <p v-else>No conversations yet.</p>
     </div>
 
@@ -469,10 +466,6 @@ function saveProfile(): void {
   text-overflow: ellipsis;
 }
 
-.pin {
-  color: var(--muted);
-}
-
 .chat-time {
   flex: 0 0 auto;
   font-size: 10px;
@@ -499,10 +492,6 @@ function saveProfile(): void {
   align-items: center;
   gap: 6px;
   flex: 0 0 auto;
-}
-
-.muted-icon {
-  color: var(--muted);
 }
 
 .unread {

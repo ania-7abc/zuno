@@ -27,14 +27,12 @@ export interface Chat {
   id: string
   title: string
   contactId: string
-  pinned: boolean
-  muted: boolean
   unread: number
   lastMessageAt: number
   typingUserId?: string
 }
 
-export type FilterId = 'all' | 'unread' | 'pinned'
+export type FilterId = 'all' | 'unread'
 
 export interface FilterItem {
   id: FilterId
