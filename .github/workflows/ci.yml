@@ -34,10 +34,24 @@ jobs:
 
     runs-on: ubuntu-24.04
 
-    env: { CXX: clang++-18 }
+    env:
+      CXX: clang++-18
+      CMAKE_PREFIX_PATH: ${{ github.workspace }}/librats-install
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Install librats
+      shell: pwsh
+      run: |
+        git clone --depth 1 --branch 3.0.5 https://github.com/librats/librats.git librats
+        cmake -S librats -B librats/build `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DRATS_BUILD_TESTS=OFF `
+          -DRATS_BUILD_CLIENT=OFF `
+          -DRATS_BUILD_EXAMPLES=OFF
+        cmake --build librats/build --config Release -j 2
+        cmake --install librats/build --config Release --prefix librats-install
 
     - name: Configure
       run: cmake --preset=ci-sanitize
@@ -67,8 +81,23 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    env:
+      CMAKE_PREFIX_PATH: ${{ github.workspace }}/librats-install
+
     steps:
     - uses: actions/checkout@v4
+
+    - name: Install librats
+      shell: pwsh
+      run: |
+        git clone --depth 1 --branch 3.0.5 https://github.com/librats/librats.git librats
+        cmake -S librats -B librats/build `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DRATS_BUILD_TESTS=OFF `
+          -DRATS_BUILD_CLIENT=OFF `
+          -DRATS_BUILD_EXAMPLES=OFF
+        cmake --build librats/build --config Release -j 2
+        cmake --install librats/build --config Release --prefix librats-install
 
     - name: Install static analyzers
       if: matrix.os == 'ubuntu-24.04'
