@@ -50,10 +50,6 @@ function toggleProfile(): void {
   }
 }
 
-function closeProfile(): void {
-  profileOpen.value = false
-}
-
 function openNewChat(): void {
   profileOpen.value = false
   toggleNewChat()
@@ -79,7 +75,6 @@ function saveProfile(): void {
           <strong>{{ currentUser.name }}</strong>
           <span>{{ currentUser.handle }}</span>
         </span>
-        <Icon class="profile-cog" name="settings" :size="16"/>
       </button>
 
       <button class="new-chat" title="New chat" type="button" @click="openNewChat">
@@ -90,9 +85,6 @@ function saveProfile(): void {
     <div class="search-row">
       <Icon name="search" :size="16"/>
       <input v-model="search" placeholder="Search messages" type="text"/>
-      <button v-if="search" class="clear" title="Clear search" type="button" @click="search = ''">
-        <Icon name="close" :size="14"/>
-      </button>
     </div>
 
     <div class="filters">
@@ -139,7 +131,7 @@ function saveProfile(): void {
               {{ previewFor(chat) }}
             </span>
             <span class="chat-flags">
-              <span v-if="chat.unread" class="unread">{{ chat.unread > 99 ? '99+' : chat.unread }}</span>
+              <span v-if="chat.unread" class="unread">{{ chat.unread }}</span>
             </span>
           </span>
         </span>
@@ -157,9 +149,6 @@ function saveProfile(): void {
       <div v-if="profileOpen" class="profile-popover">
         <div class="popover-head">
           <span>Your profile</span>
-          <button class="clear" title="Close" type="button" @click="closeProfile">
-            <Icon name="close" :size="14"/>
-          </button>
         </div>
 
         <label class="field">
@@ -199,9 +188,6 @@ function saveProfile(): void {
       <div v-if="newChatOpen" class="new-chat-popover">
         <div class="popover-head">
           <span>Start a conversation</span>
-          <button class="clear" title="Close" type="button" @click="toggleNewChat">
-            <Icon name="close" :size="14"/>
-          </button>
         </div>
         <button
             v-for="person in availablePeople"
@@ -212,7 +198,7 @@ function saveProfile(): void {
         >
           <span class="contact-text">
             <strong>{{ person.name }}</strong>
-            <span>{{ person.online ? 'Online' : person.handle }}</span>
+            <span>{{ person.handle }}</span>
           </span>
           <Icon name="message" :size="15"/>
         </button>
@@ -262,11 +248,6 @@ function saveProfile(): void {
   gap: 1px;
   min-width: 0;
   flex: 1;
-}
-
-.profile-cog {
-  flex: 0 0 auto;
-  color: var(--muted);
 }
 
 .profile-text strong {
@@ -331,18 +312,6 @@ function saveProfile(): void {
 
 .search-row input::placeholder {
   color: var(--muted);
-}
-
-.clear {
-  display: grid;
-  place-items: center;
-  width: 20px;
-  height: 20px;
-  color: var(--muted);
-}
-
-.clear:hover {
-  color: var(--text);
 }
 
 .filters {
@@ -652,14 +621,4 @@ function saveProfile(): void {
   color: var(--muted);
 }
 
-.popover-enter-active,
-.popover-leave-active {
-  transition: opacity 0.12s ease, transform 0.12s ease;
-}
-
-.popover-enter-from,
-.popover-leave-to {
-  opacity: 0;
-  transform: translateY(-4px);
-}
 </style>
