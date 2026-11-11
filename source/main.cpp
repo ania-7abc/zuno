@@ -33,8 +33,12 @@ void webui_logger(const std::size_t level, const char *log_raw,
 
 } // namespace
 
-auto main() -> int {
-  constexpr auto data_dir = "data";
+auto main(const int argc, char *argv[]) -> int {
+  std::string data_dir = "data";
+
+  if (argc >= 2) {
+    data_dir = argv[1];
+  }
 
   webui::set_logger(&webui_logger);
 
@@ -46,8 +50,9 @@ auto main() -> int {
   const auto zuno = zuno::zuno(zuno::node_config{
       .data_dir = data_dir,
       .listen_port = 0,
-      .name = "Alex",
-      .handler = "@alex",
+      .name = "Alex " + data_dir,
+      .handler = "@alex_" + data_dir,
+      .on_peers_changed = [&window]() -> void { window.run("zunoRefresh()"); },
   });
 
   std::error_code error;
@@ -59,24 +64,12 @@ auto main() -> int {
     return 1;
   }
 
-  window.set_profile("zuno", profile_dir.string());
-
   window.bind("fetchPeople", [&zuno](webui::window::event *event) -> void {
-    const auto peers = zuno.get_peers();
-
-    librats::Json json = librats::Json::array();
-    for (const auto &peer : peers) {
-      librats::Json obj;
-      obj["id"] = peer.id;           // NOLINT
-      obj["name"] = peer.name;       // NOLINT
-      obj["handler"] = peer.handler; // NOLINT
-      obj["online"] = peer.online;   // NOLINT
-      if (!peer.online) {
-        obj["last_seen"] = peer.last_seen; // NOLINT
-      }
-      json.push_back(obj);
+    librats::Json json = librats::Json::object();
+    for (const auto &peer : zuno.get_peers()) {
+      json[peer.id] = peer.to_json(); // NOLINT
     }
-
+    json["you"] = zuno.get_profile().to_json(); // NOLINT
     event->return_string(json.dump());
   });
 
@@ -87,7 +80,8 @@ auto main() -> int {
   constexpr std::string_view content{"frontend/"};
 #endif
 
-  bool shown = window.show_wv(content);
+  // bool shown = window.show_wv(content);
+  bool shown = false;
   if (!shown) {
     shown = window.show_browser(content);
   }

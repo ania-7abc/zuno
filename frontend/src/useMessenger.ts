@@ -1,9 +1,8 @@
-import {createMessengerMock} from '@/mock/messenger'
-import type {Chat, Message, PeopleMap, Person, ProfileUpdate} from '@/types/messenger'
+import type {Chat, Message, MessageMap, PeopleMap, Person, ProfileUpdate} from '@/types/messenger'
 
 import {useWebui} from './useWebui.js'
 
-const {isAvailable, waitForConnected} = useWebui()
+const {isConnected} = useWebui()
 
 export interface MessengerApi {
   fetchPeople(): Promise<PeopleMap>
@@ -16,32 +15,36 @@ export interface MessengerApi {
   updateProfile(profile: ProfileUpdate): Person
 }
 
-const mock = createMessengerMock()
+let people: PeopleMap = {}
+let chats: Chat[] = []
+let messages: MessageMap = {}
 
 let messageSequence = 0
 
 export function useMessenger(): MessengerApi {
   return {
-    async fetchPeople(): Promise<PeopleMap>{
-      const people = structuredClone(mock.people)
+    async fetchPeople(): Promise<PeopleMap> {
+      if (!isConnected.value)
+        return {}
 
-      if (!isAvailable.value)
-        return people
-
-      await waitForConnected()
-      const response = await webui.call('fetchPeople')
-      return {
-        ...people,
-        ...(JSON.parse(response) as PeopleMap),
+      try {
+        const response = JSON.parse(await webui.call('fetchPeople')) as PeopleMap
+        people = response
+        return response
+      } catch (error) {
+        console.warn('fetchPeople failed', error)
+        return {}
       }
     },
 
     fetchChats(): Chat[] {
-      return structuredClone(mock.chats)
+      // return structuredClone(mock.chats)
+      return []
     },
 
-    fetchMessages(chatId: string): Message[] {
-      return structuredClone(mock.messages[chatId] ?? [])
+    fetchMessages(_chatId: string): Message[] {
+      // return structuredClone(mock.messages[chatId] ?? [])
+      return []
     },
 
     sendMessage(chatId: string, text: string): Message | null {
@@ -52,27 +55,27 @@ export function useMessenger(): MessengerApi {
       const timestamp = Date.now()
       const message: Message = {
         id: `local-${timestamp}-${++messageSequence}`,
-        senderId: mock.people.you.id,
+        senderId: people.you.id,
         text: trimmed,
         createdAt: timestamp,
         status: 'sent',
       }
 
-      const list = mock.messages[chatId] ?? []
+      const list = messages[chatId] ?? []
       list.push(message)
-      mock.messages[chatId] = list
+      messages[chatId] = list
 
       return structuredClone(message)
     },
 
     markChatRead(chatId: string): void {
-      const chat = mock.chats.find((item) => item.id === chatId)
+      const chat = chats.find((item) => item.id === chatId)
       if (chat)
         chat.unread = 0
     },
 
     markAllChatsRead(): void {
-      for (const chat of mock.chats)
+      for (const chat of chats)
         chat.unread = 0
     },
 
@@ -85,15 +88,15 @@ export function useMessenger(): MessengerApi {
         lastMessageAt: 0,
       }
 
-      mock.chats.push(chat)
-      mock.messages[chat.id] = []
+      chats.push(chat)
+      messages[chat.id] = []
 
       return structuredClone(chat)
     },
 
     updateProfile(profile: ProfileUpdate): Person {
-      Object.assign(mock.people.you, profile)
-      return structuredClone(mock.people.you)
+      Object.assign(people.you, profile)
+      return structuredClone(people.you)
     },
   }
 }

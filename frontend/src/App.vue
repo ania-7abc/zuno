@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import {computed} from 'vue'
-
 import Chat from './components/Chat.vue'
 import Sidebar from './components/Sidebar.vue'
 import ThemeSwitcher from './components/ThemeSwitcher.vue'
@@ -8,20 +6,9 @@ import ThemeSwitcher from './components/ThemeSwitcher.vue'
 import {useWebui} from './useWebui.js'
 import {useMessengerState} from './useMessengerState'
 
-type ConnectionState = 'ready' | 'unavailable' | 'connecting'
-
 const {isAvailable, isConnected} = useWebui()
 const {mobileView} = useMessengerState()
 
-const connectionState = computed<ConnectionState>(() => {
-  if (import.meta.env.DEV)
-    return 'ready'
-  if (!isAvailable.value)
-    return 'unavailable'
-  if (!isConnected.value)
-    return 'connecting'
-  return 'ready'
-})
 </script>
 
 <template>
@@ -34,13 +21,13 @@ const connectionState = computed<ConnectionState>(() => {
       <ThemeSwitcher/>
     </div>
   </nav>
-  <div v-if="connectionState === 'unavailable'" class="status-screen">
+  <div v-if="!isAvailable" class="status-screen">
     <div class="error">
       <div class="error-icon">⚠</div>
       <h2>WebUI is unavailable</h2>
     </div>
   </div>
-  <div v-else-if="connectionState === 'connecting'" class="status-screen">
+  <div v-else-if="!isConnected" class="status-screen">
     <div class="spinner"></div>
     <p class="loading-text">Connecting...</p>
   </div>

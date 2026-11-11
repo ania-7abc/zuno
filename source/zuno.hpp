@@ -1,10 +1,10 @@
 #pragma once
 
 #include <librats/node/node.h>
-#include <librats/subsystems/dht_discovery.h>
-#include <librats/subsystems/message_json.h>
+#include <librats/util/json.h>
 
 #include <chrono>
+#include <functional>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -17,14 +17,29 @@ public:
   uint16_t listen_port = 0;
   std::string name;
   std::string handler;
+  std::function<void()> on_peers_changed;
 };
 
 struct person {
+  // NOLINTBEGIN
   std::string id;
   std::string name;
-  std::string handler;
+  std::string handle;
   bool online = false;
   int64_t last_seen = 0; // Unix timestamp
+  // NOLINTEND
+
+  [[nodiscard]] auto to_json() const -> librats::Json {
+    librats::Json obj;
+    obj["id"] = id;         // NOLINT
+    obj["name"] = name;     // NOLINT
+    obj["handle"] = handle; // NOLINT
+    obj["online"] = online; // NOLINT
+    if (!online) {
+      obj["last_seen"] = last_seen; // NOLINT
+    }
+    return obj;
+  }
 };
 
 class zuno {
@@ -38,11 +53,12 @@ public:
   auto operator=(zuno &&) -> zuno & = delete;
 
   auto get_peers() const -> std::vector<person>;
-  auto peer_id() const -> std::string;
+  auto get_profile() const -> person;
 
 private:
   static auto make_config(const node_config &c) -> librats::NodeConfig;
   static auto now_ms() -> int64_t;
+  void notify_peers_changed() const;
 
   node_config m_config;
   librats::Node m_node;

@@ -34,10 +34,6 @@ function initialize() {
 function waitForConnected(timeoutMs = 10000) {
     if (state.isConnected.value) return Promise.resolve()
 
-    if (!state.isAvailable.value) {
-        return Promise.reject(new Error('waitForConnected: WebUI is not available'))
-    }
-
     return new Promise((resolve, reject) => {
         let timer = null
 

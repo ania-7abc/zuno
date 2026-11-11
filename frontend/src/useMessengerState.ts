@@ -1,4 +1,4 @@
-import {computed, reactive, ref} from 'vue'
+import {computed, reactive, ref, watch} from 'vue'
 
 import {useMessenger} from '@/useMessenger'
 import type {
@@ -22,15 +22,69 @@ import {
   senderNameFor as findSenderName,
 } from '@/utils/messenger'
 
+import {useWebui} from './useWebui.js'
+
+const {isConnected} = useWebui()
+
 const api = useMessenger()
 
 const people = reactive<PeopleMap>(await api.fetchPeople())
-const currentUser = people.you
+
+const currentUser = people.you ?? reactive<Person>({
+  id: 'loading',
+  name: 'Loading...',
+  handle: '@loading',
+  online: true,
+})
 
 const chats = ref<Chat[]>(api.fetchChats())
 const messages = ref<Record<string, Message[]>>(
   Object.fromEntries(chats.value.map((chat) => [chat.id, api.fetchMessages(chat.id)])),
 )
+
+type RefreshScope = 'all' | 'people' | 'chats'
+
+function mergePeople(next: PeopleMap): void {
+  for (const [id, person] of Object.entries(next)) {
+    const existing = people[id]
+    if (existing)
+      Object.assign(existing, person)
+    else
+      people[id] = person
+  }
+
+  if (next.you)
+    Object.assign(currentUser, next.you)
+}
+
+function reloadChats(): void {
+  chats.value = api.fetchChats()
+  const nextMessages: Record<string, Message[]> = {}
+  for (const chat of chats.value)
+    nextMessages[chat.id] = api.fetchMessages(chat.id)
+  messages.value = nextMessages
+}
+
+async function refresh(scope: RefreshScope = 'all'): Promise<void> {
+  if (scope === 'all' || scope === 'people')
+    mergePeople(await api.fetchPeople())
+
+  if (scope === 'all' || scope === 'chats')
+    reloadChats()
+}
+
+watch(isConnected, () => refresh('all'))
+
+// The connection can be established while the initial fetch above is still
+// running, before this watcher exists. Refresh once in that case.
+if (isConnected.value)
+  void refresh('all')
+
+if (typeof window !== 'undefined') {
+  (window as Window & {
+    zunoRefresh?: (scope?: RefreshScope) => void
+  }).zunoRefresh = (scope?: RefreshScope) => refresh(scope)
+}
 
 const activeChatId = ref<string | null>(null)
 const filter = ref<FilterId>('all')
