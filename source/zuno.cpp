@@ -1,20 +1,20 @@
 #include "zuno.hpp"
 
-#include <utility>
+#include <chrono>
+#include <cstdint>
 #include <memory>
 #include <mutex>
 #include <stdexcept>
+#include <utility>
 #include <vector>
-#include <cstdint>
-#include <chrono>
 
-#include <librats/util/json.h>
 #include <librats/core/types.h>
+#include <librats/node/config.h>
 #include <librats/peer/peer.h>
 #include <librats/peer/peer_id.h>
-#include <librats/node/config.h>
 #include <librats/subsystems/dht_discovery.h>
 #include <librats/subsystems/message_json.h>
+#include <librats/util/json.h>
 
 namespace zuno {
 
