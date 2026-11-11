@@ -1,14 +1,12 @@
 import {createMessengerMock} from '@/mock/messenger'
-import type {
-  Chat,
-  Message,
-  PeopleMap,
-  Person,
-  ProfileUpdate,
-} from '@/types/messenger'
+import type {Chat, Message, PeopleMap, Person, ProfileUpdate} from '@/types/messenger'
+
+import {useWebui} from './useWebui.js'
+
+const {isAvailable, waitForConnected} = useWebui()
 
 export interface MessengerApi {
-  fetchPeople(): PeopleMap
+  fetchPeople(): Promise<PeopleMap>
   fetchChats(): Chat[]
   fetchMessages(chatId: string): Message[]
   sendMessage(chatId: string, text: string): Message | null
@@ -24,8 +22,18 @@ let messageSequence = 0
 
 export function useMessenger(): MessengerApi {
   return {
-    fetchPeople(): PeopleMap {
-      return structuredClone(mock.people)
+    async fetchPeople(): Promise<PeopleMap>{
+      const people = structuredClone(mock.people)
+
+      if (!isAvailable.value)
+        return people
+
+      await waitForConnected()
+      const response = await webui.call('fetchPeople')
+      return {
+        ...people,
+        ...(JSON.parse(response) as PeopleMap),
+      }
     },
 
     fetchChats(): Chat[] {

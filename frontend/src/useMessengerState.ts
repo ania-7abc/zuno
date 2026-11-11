@@ -24,7 +24,7 @@ import {
 
 const api = useMessenger()
 
-const people = reactive<PeopleMap>(api.fetchPeople())
+const people = reactive<PeopleMap>(await api.fetchPeople())
 const currentUser = people.you
 
 const chats = ref<Chat[]>(api.fetchChats())

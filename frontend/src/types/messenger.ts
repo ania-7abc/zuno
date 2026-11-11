@@ -2,7 +2,6 @@ export interface Person {
   id: string
   name: string
   handle: string
-  peerId?: string
   online: boolean
   lastSeen?: number
 }

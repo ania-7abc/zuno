@@ -19,7 +19,6 @@ export function createMessengerMock(): MessengerMock {
       id: 'you',
       name: 'Alex Morgan',
       handle: '@alexmorgan',
-      peerId: '12D3KooWQ7xJm4Xz9bFk2Lr8TnV5pYc6Hs3Gw1Ae',
       online: true,
     },
     maya: {

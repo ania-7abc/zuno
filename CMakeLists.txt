@@ -15,7 +15,9 @@ include(cmake/variables.cmake)
 
 # ---- Declare executable ----
 
-add_executable(zuno_exe source/main.cpp)
+add_executable(zuno_exe source/main.cpp
+        source/zuno.hpp
+        source/zuno.cpp)
 add_executable(zuno::exe ALIAS zuno_exe)
 
 set_property(TARGET zuno_exe PROPERTY OUTPUT_NAME zuno)
